@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat en tiempo real</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #chat {
+            display: none;
+        }
+        .message {
+            border-bottom: 1px solid #ddd;
+            padding: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bienvenido al chat en tiempo real</h1>
+
+    <div id="createJoinRoom">
+        <h3>Crear o Unirse a una Sala</h3>
+        <label for="roomID">ID de la sala:</label>
+        <input type="text" id="roomID" placeholder="ID de la sala">
+        <label for="roomPassword">Contraseña:</label>
+        <input type="password" id="roomPassword" placeholder="Contraseña">
+        <button id="createRoomBtn">Crear Sala</button>
+        <button id="joinRoomBtn">Unirse a Sala</button>
+    </div>
+
+    <div id="chat">
+        <h3>Chat en Sala: <span id="roomName"></span></h3>
+        <div id="messages"></div>
+        <input type="text" id="messageInput" placeholder="Escribe un mensaje">
+        <button id="sendMessageBtn">Enviar</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
