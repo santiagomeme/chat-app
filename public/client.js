@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io('https://chat-2j4pygn0q-santiagos-projects-d006ed81.vercel.app');
 
 // Elementos del DOM
 const roomForm = document.getElementById('room-form');
