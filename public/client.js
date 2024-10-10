@@ -1,4 +1,4 @@
-const socket = io('https://chat-2j4pygn0q-santiagos-projects-d006ed81.vercel.app');
+const socket = io('https://chat-2j4pygn0q-santiagos-projects-d006ed81.vercel.app'); // URL correcta
 
 // Elementos del DOM
 const roomForm = document.getElementById('room-form');
@@ -7,14 +7,18 @@ const roomInput = document.getElementById('room-id');
 const passwordInput = document.getElementById('room-password');
 const messageInput = document.getElementById('message');
 const chatWindow = document.getElementById('chat-window');
+const roomNameSpan = document.getElementById('roomName'); // Para mostrar el nombre de la sala
 
 // Crear una sala
 roomForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const roomID = roomInput.value;
     const roomPassword = passwordInput.value;
-    socket.emit('createRoom', { roomID, roomPassword });
-    chatWindow.innerHTML += `<p>Sala creada: ${roomID}</p>`;
+    if (roomID && roomPassword) {
+        socket.emit('createRoom', { roomID, roomPassword });
+        chatWindow.innerHTML += `<p>Sala creada: ${roomID}</p>`;
+        roomNameSpan.innerText = roomID; // Mostrar el nombre de la sala
+    }
 });
 
 // Unirse a una sala
@@ -22,7 +26,11 @@ roomForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const roomID = roomInput.value;
     const roomPassword = passwordInput.value;
-    socket.emit('joinRoom', { roomID, roomPassword });
+    if (roomID && roomPassword) {
+        socket.emit('joinRoom', { roomID, roomPassword });
+        chatWindow.innerHTML += `<p>Te has unido a la sala: ${roomID}</p>`;
+        roomNameSpan.innerText = roomID; // Mostrar el nombre de la sala
+    }
 });
 
 // Enviar mensaje
@@ -30,13 +38,18 @@ messageForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const message = messageInput.value;
     const roomID = roomInput.value;
-    socket.emit('sendMessage', { roomID, message });
-    messageInput.value = ''; // Limpiar el campo de mensaje
+    if (message && roomID) {
+        socket.emit('sendMessage', { roomID, message });
+        messageInput.value = ''; // Limpiar el campo de mensaje
+    }
 });
 
 // Escuchar los mensajes del servidor
 socket.on('message', (message) => {
-    chatWindow.innerHTML += `<p>${message}</p>`;
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.innerText = message;
+    chatWindow.appendChild(messageElement);
 });
 
 // Manejar errores
