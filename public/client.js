@@ -1,4 +1,9 @@
-const socket = io('https://chat-2j4pygn0q-santiagos-projects-d006ed81.vercel.app'); // URL correcta
+// Detectar si está en producción (Vercel) o en local
+const socket = io(
+    window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000' 
+    : 'https://chat-2j4pygn0q-santiagos-projects-d006ed81.vercel.app'
+);
 
 // Elementos del DOM
 const roomForm = document.getElementById('room-form');
