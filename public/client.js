@@ -15,7 +15,7 @@ const chatWindow = document.getElementById('chat-window');
 const roomNameSpan = document.getElementById('roomName'); // Para mostrar el nombre de la sala
 
 // Crear una sala
-roomForm.addEventListener('submit', (e) => {
+document.getElementById('createRoomBtn').addEventListener('click', (e) => {
     e.preventDefault();
     const roomID = roomInput.value;
     const roomPassword = passwordInput.value;
@@ -27,7 +27,7 @@ roomForm.addEventListener('submit', (e) => {
 });
 
 // Unirse a una sala
-roomForm.addEventListener('submit', (e) => {
+document.getElementById('joinRoomBtn').addEventListener('click', (e) => {
     e.preventDefault();
     const roomID = roomInput.value;
     const roomPassword = passwordInput.value;
@@ -37,6 +37,7 @@ roomForm.addEventListener('submit', (e) => {
         roomNameSpan.innerText = roomID; // Mostrar el nombre de la sala
     }
 });
+
 
 // Enviar mensaje
 messageForm.addEventListener('submit', (e) => {

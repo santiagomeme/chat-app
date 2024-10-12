@@ -28,7 +28,6 @@ io.on('connection', (socket) => {
 
     // Crear una sala
     socket.on('createRoom', async ({ roomID, roomPassword }) => {
-        rooms[roomID] = roomPassword; // Esto aún está en memoria local
         socket.join(roomID);
         io.to(roomID).emit('message', 'Sala creada');
         
