@@ -7,6 +7,12 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
+const cors = require('cors');
+app.use(cors({
+    origin: ['https://chat-44dodjwt3-santiagos-projects-d006ed81.vercel.app', 'http://localhost:3000']
+}));
+
+
 // Conexión a Redis usando la URL pública de Railway
 const redisClient = redis.createClient({
     url: 'redis://default:DVsYLOjBpPMTejNqRYXlhGfmjijEzIUR@junction.proxy.rlwy.net:49133'
