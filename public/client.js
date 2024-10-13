@@ -6,13 +6,15 @@ const socket = io(
 );
 
 // Elementos del DOM
-const roomForm = document.getElementById('room-form');
 const messageForm = document.getElementById('message-form');
-const roomInput = document.getElementById('room-id');
-const passwordInput = document.getElementById('room-password');
-const messageInput = document.getElementById('message');
+const roomInput = document.getElementById('roomID');
+const passwordInput = document.getElementById('roomPassword');
+const messageInput = document.getElementById('messageInput');
 const chatWindow = document.getElementById('chat-window');
 const roomNameSpan = document.getElementById('roomName'); // Para mostrar el nombre de la sala
+const leaveRoomBtn = document.getElementById('leaveRoomBtn');
+
+
 
 // Crear una sala
 document.getElementById('createRoomBtn').addEventListener('click', (e) => {
@@ -40,7 +42,7 @@ document.getElementById('joinRoomBtn').addEventListener('click', (e) => {
 
 
 // Enviar mensaje
-messageForm.addEventListener('submit', (e) => {
+document.getElementById('sendMessageBtn').addEventListener('click', (e) => {
     e.preventDefault();
     const message = messageInput.value;
     const roomID = roomInput.value;
@@ -57,6 +59,25 @@ socket.on('message', (message) => {
     messageElement.innerText = message;
     chatWindow.appendChild(messageElement);
 });
+
+// Salir de la sala
+leaveRoomBtn.addEventListener('click', () => {
+    const roomID = roomIDInput.value;
+
+    if (roomID) {
+        socket.emit('leaveRoom', roomID); // Emitir evento para salir de la sala
+
+        // Restablecer los campos de la interfaz
+        roomIDInput.value = '';
+        roomPasswordInput.value = '';
+        messageInput.value = '';
+        messagesDiv.innerHTML = ''; // Limpiar la ventana de mensajes
+        roomNameSpan.innerText = ''; // Quitar el nombre de la sala mostrada
+        chatDiv.style.display = 'none'; // Ocultar la ventana de chat
+        alert('Has salido de la sala.');
+    }
+});
+
 
 // Manejar errores
 socket.on('error', (errorMessage) => {
