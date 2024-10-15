@@ -10,8 +10,13 @@ const io = socketIO(server);
 
 // Configurar CORS
 app.use(cors({
-    origin: ['https://chat-44dodjwt3-santiagos-projects-d006ed81.vercel.app', 'http://localhost:3000']
+    origin: [
+        'https://chat-44dodjwt3-santiagos-projects-d006ed81.vercel.app',
+        'http://localhost:3000',
+        'https://chat-app-e3480.web.app'  // URL de Firebase Hosting
+    ]
 }));
+
 
 // Conexión a Redis usando la URL pública de Railway
 const redisClient = redis.createClient({
@@ -69,22 +74,10 @@ io.on('connection', (socket) => {
         console.log(`Mensaje guardado en la sala ${roomID}: ${message}`);
     });
 
-    // Prueba para almacenar un mensaje en Redis
-    redisClient.set('mensaje', 'Tu mensaje de prueba', (err, reply) => {
-        if (err) {
-            console.log('Error guardando mensaje en Redis:', err);
-        } else {
-            console.log('Mensaje guardado en Redis:', reply);
-        }
-    });
-
-    // Prueba para recuperar un mensaje desde Redis
-    redisClient.get('mensaje', (err, reply) => {
-        if (err) {
-            console.log('Error recuperando mensaje de Redis:', err);
-        } else {
-            console.log('Mensaje recuperado de Redis:', reply);
-        }
+    // Salir de una sala (sin borrar mensajes)
+    socket.on('leaveRoom', (roomID) => {
+        socket.leave(roomID); // El usuario sale de la sala
+        console.log(`Usuario salió de la sala: ${roomID}`);
     });
 
     // Desconexión de usuarios
@@ -92,14 +85,6 @@ io.on('connection', (socket) => {
         console.log('Usuario desconectado');
     });
 });
-
-
-// Manejar la salida de la sala
-socket.on('leaveRoom', (roomID) => {
-    socket.leave(roomID); // El usuario sale de la sala
-    console.log(`Usuario salió de la sala: ${roomID}`);
-});
-
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Servidor escuchando en el puerto ${PORT}`));
