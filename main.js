@@ -8,6 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
+
 // Configurar CORS
 app.use(cors({
     origin: [
@@ -87,4 +88,8 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
+app.get('/', (req, res) => {
+    res.send('Bienvenido a la aplicación de chat');
+});
+
 server.listen(PORT, () => console.log(`Servidor escuchando en el puerto ${PORT}`));
