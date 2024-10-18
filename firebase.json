@@ -1,6 +1,7 @@
 {
   "hosting": {
-    "public": "y",
+    "public": "public",
+    "port": 5001,
     "ignore": [
       "firebase.json",
       "**/.*",

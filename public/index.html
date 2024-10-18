@@ -22,7 +22,18 @@
       to avoid connecting the SDK to running emulators.
     -->
     <script defer src="/__/firebase/init.js?useEmulator=true"></script>
-
+    <style>
+      body {
+          font-family: Arial, sans-serif;
+      }
+      #chat {
+          display: none;
+      }
+      .message {
+          border-bottom: 1px solid #ddd;
+          padding: 5px 0;
+      }
+  </style>
     <style media="screen">
       body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
       #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
@@ -47,6 +58,11 @@
     </div>
     <p id="load">Firebase SDK Loading&hellip;</p>
 
+
+
+
+
+    
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const loadEl = document.querySelector('#load');
@@ -85,5 +101,31 @@
         }
       });
     </script>
+
+<h1>Bienvenido al chat</h1>
+
+<div id="createJoinRoom">
+    <h3>Crear o Unirse a una Sala</h3>
+    <label for="roomID">ID de la sala:</label>
+    <input type="text" id="roomID" placeholder="ID de la sala">
+    <label for="roomPassword">Contraseña:</label>
+    <input type="password" id="roomPassword" placeholder="Contraseña">
+    <button id="createRoomBtn">Crear Sala</button>
+    <button id="joinRoomBtn">Unirse a Sala</button>
+</div>
+
+<div id="chat">
+    <h3>Chat en Sala: <span id="roomName"></span></h3>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Escribe un mensaje">
+    <button id="sendMessageBtn">Enviar</button>
+    <button id="leaveRoomBtn">Salir de la Sala</button>
+</div>
+
+<!-- Carga de Socket.IO desde una CDN -->
+<script src="https://cdn.socket.io/4.8.0/socket.io.min.js"></script>
+<script src="script.js"></script>
+
+
   </body>
 </html>
