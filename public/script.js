@@ -1,7 +1,7 @@
 const socket = io(
     window.location.hostname === 'localhost' 
     ? 'http://localhost:3000' 
-    : 'https://chat-2j4pygn0q-santiagos-projects-d006ed81.vercel.app'
+    : 'https://chat-dtqzcsun5-santiagos-projects-d006ed81.vercel.app/'
 );
 
 
