@@ -5,20 +5,26 @@ const redis = require('redis');
 const cors = require('cors');
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
 
 
-// Configurar CORS
-app.use(cors({
-    origin: [
-        'https://chat-8y3l36oom-santiagos-projects-d006ed81.vercel.app',
-        'http://localhost:3000',
-        'https://chat-app-e3480.web.app'  // URL de Firebase Hosting
-    ],
+// Configura CORS
+const corsOptions = {
+    origin: 'https://chat-app-e3480.web.app', // Aquí puedes agregar otros orígenes si los necesitas
     methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type']
-}));
+    credentials: true // Permitir credenciales si es necesario
+};
+
+app.use(cors(corsOptions));
+
+// Configuración de Socket.IO
+const server = require('http').createServer(app);
+const io = require('socket.io')(server, {
+    cors: {
+        origin: 'https://chat-app-e3480.web.app', // Permitir el frontend alojado en Firebase
+        methods: ['GET', 'POST'],
+        credentials: true
+    }
+});
 
 
 // Conexión a Redis usando la URL pública de Railway
