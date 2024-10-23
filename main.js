@@ -14,6 +14,12 @@ const corsOptions = {
     credentials: false, // Habilita las credenciales si son necesarias
 };
 app.use(cors(corsOptions));
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://chat-app-e3480.web.app');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+});
+
 
 // Configuración de Socket.IO con CORS
 const io = socketIO(server, {
