@@ -12,10 +12,12 @@ const io = socketIO(server);
 // Configurar CORS
 app.use(cors({
     origin: [
-        'https://chat-44dodjwt3-santiagos-projects-d006ed81.vercel.app',
+        'https://chat-8y3l36oom-santiagos-projects-d006ed81.vercel.app',
         'http://localhost:3000',
         'https://chat-app-e3480.web.app'  // URL de Firebase Hosting
-    ]
+    ],
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type']
 }));
 
 
