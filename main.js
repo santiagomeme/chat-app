@@ -3,27 +3,25 @@ const http = require('http');
 const socketIO = require('socket.io');
 const redis = require('redis');
 const cors = require('cors');
+const server = require('http').createServer(app);
 
 const app = express();
 
 
-// Configura CORS
 const corsOptions = {
-    origin: 'https://chat-app-e3480.web.app', // Aquí puedes agregar otros orígenes si los necesitas
+    origin: ['https://chat-app-e3480.web.app', 'https://chat-8y3l36oom-santiagos-projects-d006ed81.vercel.app'], // Agrega las dos URLs
     methods: ['GET', 'POST'],
-    credentials: true // Permitir credenciales si es necesario
+    credentials: false, // Habilita las credenciales si son necesarias
 };
-
 app.use(cors(corsOptions));
 
-// Configuración de Socket.IO
-const server = require('http').createServer(app);
-const io = require('socket.io')(server, {
+// Configuración de Socket.IO con CORS
+const io = socketIO(server, {
     cors: {
-        origin: 'https://chat-app-e3480.web.app', // Permitir el frontend alojado en Firebase
+        origin: ['https://chat-app-e3480.web.app', 'https://chat-8y3l36oom-santiagos-projects-d006ed81.vercel.app'], // Aquí también
         methods: ['GET', 'POST'],
-        credentials: true
-    }
+        credentials: false,
+    },
 });
 
 
