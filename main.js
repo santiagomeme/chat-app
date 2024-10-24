@@ -101,4 +101,9 @@ app.get('/', (req, res) => {
 });
 
 
+app.use((req, res, next) => {
+    res.status(404).send('Página no encontrada');
+});
+
+
 server.listen(PORT, () => console.log(`Servidor escuchando en el puerto ${PORT}`));
