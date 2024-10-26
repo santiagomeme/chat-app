@@ -14,6 +14,13 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Middleware adicional para las cabeceras CORS
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://chat-app-e3480.web.app');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+});
 
 const server = require('http').createServer(app);
 
