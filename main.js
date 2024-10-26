@@ -10,7 +10,7 @@ const app = express();
 const corsOptions = {
     origin: ['https://chat-app-e3480.web.app', 'https://chat-8y3l36oom-santiagos-projects-d006ed81.vercel.app'], // Agrega las dos URLs
     methods: ['GET', 'POST'],
-    credentials: false, // Habilita las credenciales si son necesarias
+    credentials: true, // Habilita las credenciales si son necesarias
 };
 app.use(cors(corsOptions));
 
@@ -22,7 +22,7 @@ const io = socketIO(server, {
     cors: {
         origin: ['https://chat-app-e3480.web.app', 'https://chat-8y3l36oom-santiagos-projects-d006ed81.vercel.app'], // Aquí también
         methods: ['GET', 'POST'],
-        credentials: false,
+        credentials: true,
     },
 });
 
