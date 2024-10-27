@@ -8,7 +8,7 @@ const app = express();
 
 
 const corsOptions = {
-    origin: ['https://chat-app-e3480.web.app', 'chat-c5ak05pq6-santiagos-projects-d006ed81.vercel.app'], // Agrega las dos URLs
+    origin: ['https://chat-app-e3480.web.app', 'https://chat-c5ak05pq6-santiagos-projects-d006ed81.vercel.app'], // Agrega las dos URLs
     methods: ['GET', 'POST'],
     credentials: true, // Habilita las credenciales si son necesarias
 };
@@ -27,7 +27,7 @@ const server = require('http').createServer(app);
 // Configuración de Socket.IO con CORS
 const io = socketIO(server, {
     cors: {
-        origin: ['https://chat-app-e3480.web.app', 'chat-c5ak05pq6-santiagos-projects-d006ed81.vercel.app'], // Aquí también
+        origin: ['https://chat-app-e3480.web.app', 'https://chat-c5ak05pq6-santiagos-projects-d006ed81.vercel.app'], // Aquí también
         methods: ['GET', 'POST'],
         credentials: true,
     },
