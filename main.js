@@ -25,13 +25,15 @@ app.use((req, res, next) => {
 const server = require('http').createServer(app);
 
 // Configuración de Socket.IO con CORS
-const io = socketIO(server, {
+const io = require('socket.io')(server, {
     cors: {
-        origin: ['https://chat-app-e3480.web.app', 'https://chat-app-kohl-psi.vercel.app'], // Aquí también
-        methods: ['GET', 'POST'],
-        credentials: true,
-    },
+        origin: ['https://chat-app-kohl-psi.vercel.app'],
+        methods: ["GET", "POST"],
+        allowedHeaders: ["my-custom-header"],
+        credentials: true
+    }
 });
+
 
 
 // Conexión a Redis usando la URL pública de Railway

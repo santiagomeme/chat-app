@@ -1,8 +1,13 @@
 const socket = io(
-    window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000' 
-    : 'https://chat-app-kohl-psi.vercel.app'  // URL de producción en Vercel
+    window.location.hostname === 'localhost'
+        ? 'http://localhost:3000'
+        : 'https://chat-app-kohl-psi.vercel.app',
+    {
+        transports: ['polling'] // Forzar a usar polling si WebSocket falla
+    }
 );
+
+
 //chat-dtqzcsun5-santiagos-projects-d006ed81.vercel.app
 //https://chat-8y3l36oom-santiagos-projects-d006ed81.vercel.app/
 
