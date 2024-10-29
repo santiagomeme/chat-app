@@ -1,3 +1,4 @@
+require('dotenv').config(); // Cargar variables del archivo .env
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
@@ -14,6 +15,13 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+
+// Maneja todas las solicitudes OPTIONS con las opciones de CORS
+app.options('*', cors(corsOptions));
+
+// Middleware para servir archivos estáticos (si tienes un directorio 'public')
+app.use(express.static('public'));
+
 // Middleware adicional para las cabeceras CORS
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', 'https://chat-app-e3480.web.app');
@@ -23,6 +31,9 @@ app.use((req, res, next) => {
 });
 
 const server = require('http').createServer(app);
+
+
+
 
 // Configuración de Socket.IO con CORS
 const io = require('socket.io')(server, {
@@ -36,16 +47,17 @@ const io = require('socket.io')(server, {
 
 
 
-// Conexión a Redis usando la URL pública de Railway
+// Configuración de Redis con Upstash
 const redisClient = redis.createClient({
-    url: 'redis://default:DVsYLOjBpPMTejNqRYXlhGfmjijEzIUR@junction.proxy.rlwy.net:49133'
+    url: process.env.UPSTASH_REDIS_URL,
+    password: process.env.UPSTASH_REDIS_TOKEN, // Algunos clientes usan "password" para el token
 });
 
-// Conectar a Redis
+// Conectar y manejar errores
 redisClient.connect().then(() => {
-    console.log('Conectado a Redis en Railway');
-}).catch(err => {
-    console.error('Error al conectar a Redis', err);
+    console.log('Conectado a Redis en Upstash');
+}).catch((err) => {
+    console.error('Error al conectar a Redis en Upstash', err);
 });
 
 // Manejo de salas
