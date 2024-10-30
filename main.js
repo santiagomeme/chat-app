@@ -1,69 +1,57 @@
 require('dotenv').config(); // Cargar variables del archivo .env
+const { Redis } = require('@upstash/redis'); // Importar la biblioteca para Redis de Upstash
+
+console.log('UPSTASH_REDIS_URL:', process.env.UPSTASH_REDIS_URL);
+console.log('UPSTASH_REDIS_TOKEN:', process.env.UPSTASH_REDIS_TOKEN);
+
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
-const redis = require('redis');
 const cors = require('cors');
 
 const app = express();
 
-
 const corsOptions = {
-    origin: ['https://chat-app-e3480.web.app', 'https://chat-app-kohl-psi.vercel.app'], // Agrega las dos URLs
+    origin: ['https://chat-app-e3480.web.app', 'https://chat-app-kohl-psi.vercel.app'],
     methods: ['GET', 'POST'],
-    credentials: true, // Habilita las credenciales si son necesarias
+    credentials: true,
 };
+
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Manejar todas las solicitudes OPTIONS
 
-
-// Maneja todas las solicitudes OPTIONS con las opciones de CORS
-app.options('*', cors(corsOptions));
-
-// Middleware para servir archivos estáticos (si tienes un directorio 'public')
 app.use(express.static('public'));
 
-// Middleware adicional para las cabeceras CORS
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://chat-app-e3480.web.app');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    next();
-});
-
-const server = require('http').createServer(app);
-
-
-
+const server = http.createServer(app);
 
 // Configuración de Socket.IO con CORS
-const io = require('socket.io')(server, {
+const io = socketIO(server, {
     cors: {
         origin: ['https://chat-app-kohl-psi.vercel.app'],
-        methods: ["GET", "POST"],
-        allowedHeaders: ["my-custom-header"],
-        credentials: true
-    }
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['my-custom-header'],
+        credentials: true,
+    },
 });
 
-
-
-// Configuración de Redis con Upstash
-const redisClient = redis.createClient({
+// Configuración de Redis
+const redisClient = new Redis({
     url: process.env.UPSTASH_REDIS_URL,
-    password: process.env.UPSTASH_REDIS_TOKEN, // Algunos clientes usan "password" para el token
+    token: process.env.UPSTASH_REDIS_TOKEN,
 });
 
 // Conectar y manejar errores
-redisClient.connect().then(() => {
-    console.log('Conectado a Redis en Upstash');
-}).catch((err) => {
-    console.error('Error al conectar a Redis en Upstash', err);
-});
+(async () => {
+    try {
+        await redisClient.ping(); // Verificar la conexión
+        console.log('Conectado a Redis en Upstash');
+    } catch (err) {
+        console.error('Error al conectar a Redis en Upstash', err);
+    }
+})();
 
 // Manejo de salas
-const rooms = {}; 
-
-app.use(express.static('public'));
+const rooms = {};
 
 io.on('connection', (socket) => {
     console.log('Nuevo usuario conectado');
@@ -75,7 +63,6 @@ io.on('connection', (socket) => {
 
         // Guardar la sala y contraseña en Redis
         await redisClient.hSet(`room:${roomID}`, 'password', roomPassword);
-
         console.log(`Sala creada: ${roomID} con contraseña: ${roomPassword}`);
     });
 
@@ -121,10 +108,8 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
-
 app.use((req, res, next) => {
     res.status(404).send('Página no encontrada');
 });
-
 
 server.listen(PORT, () => console.log(`Servidor escuchando en el puerto ${PORT}`));
