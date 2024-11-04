@@ -1,3 +1,5 @@
+document.addEventListener('DOMContentLoaded', () => {
+
 const socket = io(
     window.location.hostname === 'localhost'
         ? 'http://localhost:3000'
@@ -6,12 +8,6 @@ const socket = io(
         transports: ['polling'] // Forzar a usar polling si WebSocket falla
     }
 );
-
-
-//chat-dtqzcsun5-santiagos-projects-d006ed81.vercel.app
-//https://chat-8y3l36oom-santiagos-projects-d006ed81.vercel.app/
-
-
 
 const createRoomBtn = document.getElementById('createRoomBtn');
 const joinRoomBtn = document.getElementById('joinRoomBtn');
@@ -23,8 +19,8 @@ const messageInput = document.getElementById('messageInput');
 const sendMessageBtn = document.getElementById('sendMessageBtn');
 const roomNameSpan = document.getElementById('roomName');
 const leaveRoomBtn = document.getElementById('leaveRoomBtn');
-
-
+const showMessagesBtn = document.getElementById('showMessagesBtn');
+const messagePanel = document.getElementById('messagePanel');
 
 // Crear sala
 createRoomBtn.addEventListener('click', () => {
@@ -47,7 +43,6 @@ joinRoomBtn.addEventListener('click', () => {
         roomNameSpan.innerText = roomID;
     }
 });
-
 // Escuchar mensajes
 socket.on('message', (message) => {
     console.log(`Mensaje recibido: ${message}`);
@@ -57,7 +52,17 @@ socket.on('message', (message) => {
     messageElement.innerText = message;
     messagesDiv.appendChild(messageElement);
 });
-
+// Manejo del evento previousMessages (mostrando en el panel)
+socket.on('previousMessages', (messages) => {
+    messagePanel.style.display = 'block'; // Mostrar el panel
+    messagePanel.innerHTML = ''; // Limpiar el contenido previo
+    messages.forEach(message => {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        messageElement.innerText = message;
+        messagePanel.appendChild(messageElement);
+    });
+});
 // Enviar mensaje
 sendMessageBtn.addEventListener('click', () => {
     const roomID = roomIDInput.value;
@@ -67,6 +72,14 @@ sendMessageBtn.addEventListener('click', () => {
 
         socket.emit('sendMessage', { roomID, message });
         messageInput.value = ''; // Limpiar el campo de mensaje
+    }
+});
+
+showMessagesBtn.addEventListener('click', () => {
+    const roomID = roomIDInput.value;
+    if (roomID) {
+        messagePanel.style.display = 'block';
+        socket.emit('requestPreviousMessages', roomID); // Solicitar mensajes previos
     }
 });
 
@@ -92,4 +105,5 @@ leaveRoomBtn.addEventListener('click', () => {
 // Mostrar errores
 socket.on('error', (errorMessage) => {
     alert(errorMessage);
+});
 });

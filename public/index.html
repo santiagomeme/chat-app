@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Welcome to chat app</title>
 
-  
+    <style>
+      #messagePanel {
+          display: none;
+          border: 1px solid #ccc;
+          padding: 10px;
+          margin-top: 10px;
+      }
+  </style>
   </head>
   <body>
 
@@ -21,7 +28,11 @@
     <input type="password" id="roomPassword" placeholder="Contraseña">
     <button id="createRoomBtn">Crear Sala</button>
     <button id="joinRoomBtn">Unirse a Sala</button>
+    <button id="showMessagesBtn">Ver Mensajes</button>
+
 </div>
+
+
 
 <div id="chat">
     <h3>Chat en Sala: <span id="roomName"></span></h3>
@@ -30,6 +41,10 @@
     <button id="sendMessageBtn">Enviar</button>
     <button id="leaveRoomBtn">Salir de la Sala</button>
 </div>
+
+<div id="messagePanel"></div>
+
+
 
 <!-- Carga de Socket.IO desde una CDN -->
 <script defer src="https://cdn.socket.io/4.8.0/socket.io.min.js"></script>

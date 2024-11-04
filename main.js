@@ -50,46 +50,65 @@ const redisClient = new Redis({
     }
 })();
 
-// Manejo de salas
-const rooms = {};
+
 
 io.on('connection', (socket) => {
     console.log('Nuevo usuario conectado');
 
-    // Crear una sala
-    socket.on('createRoom', async ({ roomID, roomPassword }) => {
-        socket.join(roomID);
-        io.to(roomID).emit('message', 'Sala creada');
+   // Crear una sala
+socket.on('createRoom', async ({ roomID, roomPassword }) => {
+    socket.join(roomID);
+    io.to(roomID).emit('message', 'Sala creada');
 
-        // Guardar la sala y contraseña en Redis
-        await redisClient.hSet(`room:${roomID}`, 'password', roomPassword);
-        console.log(`Sala creada: ${roomID} con contraseña: ${roomPassword}`);
-    });
+    // Guardar la contraseña en Redis
+    await redisClient.set(`room:${roomID}`, String(roomPassword));
+    console.log(`Sala creada: ${roomID} con contraseña: ${roomPassword}`);
+});
 
-    // Unirse a una sala
-    socket.on('joinRoom', async ({ roomID, roomPassword }) => {
-        const storedPassword = await redisClient.hGet(`room:${roomID}`, 'password');
 
-        if (storedPassword === roomPassword) {
+   // Unirse a una sala
+   socket.on('joinRoom', async ({ roomID, roomPassword }) => {
+    try {
+        const storedPassword = await redisClient.get(`room:${roomID}`);
+        
+        if (String(storedPassword) === String(roomPassword)) {
             socket.join(roomID);
-            io.to(roomID).emit('message', 'Nuevo usuario en la sala');
+
+            // Asegurarse de que `lRange` sea llamada de esta manera
+            const messages = await redisClient.lrange(`messages:${roomID}`, 0, -1);
+            socket.emit('previousMessages', messages);
+            console.log(`Usuario se unió a la sala: ${roomID}`);
         } else {
             socket.emit('error', 'Contraseña incorrecta');
+            console.log(`Contraseña incorrecta para la sala ${roomID}. Esperada: ${storedPassword}, Proporcionada: ${roomPassword}`);
         }
+    } catch (error) {
+        console.error('Error al unirse a la sala:', error);
+        socket.emit('error', 'Error al procesar la solicitud');
+    }
+});
+
+
+    // Manejar solicitud de mensajes previos (al hacer clic en el botón de "Ver Mensajes")
+    socket.on('requestPreviousMessages', async (roomID) => {
+        const messages = await redisClient.lrange(`messages:${roomID}`, 0, -1); // Obtener mensajes de la sala
+        socket.emit('previousMessages', messages); // Enviar mensajes al cliente
     });
 
     // Enviar mensaje en la sala
     socket.on('sendMessage', async ({ roomID, message }) => {
         io.to(roomID).emit('message', message);
-
-        // Guardar el mensaje temporalmente en Redis
-        await redisClient.rPush(`messages:${roomID}`, message);
-
-        // Establecer una caducidad para los mensajes (24 horas)
+        await redisClient.lpush(`messages:${roomID}`, message);
         await redisClient.expire(`messages:${roomID}`, 60 * 60 * 24);
-
         console.log(`Mensaje guardado en la sala ${roomID}: ${message}`);
     });
+
+    socket.on('leaveRoom', (roomID) => {
+        socket.leave(roomID);
+        console.log(`Usuario salió de la sala: ${roomID}`);
+    });
+
+   
 
     // Salir de una sala (sin borrar mensajes)
     socket.on('leaveRoom', (roomID) => {
