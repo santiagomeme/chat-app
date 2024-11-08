@@ -64,21 +64,20 @@ socket.on('createRoom', async ({ roomID, roomPassword }) => {
     await redisClient.set(`room:${roomID}`, String(roomPassword));
     console.log(`Sala creada: ${roomID} con contraseña: ${roomPassword}`);
 });
-
-
-   // Unirse a una sala
-   socket.on('joinRoom', async ({ roomID, roomPassword }) => {
+// Unirse a una sala
+socket.on('joinRoom', async ({ roomID, roomPassword }) => {
     try {
         const storedPassword = await redisClient.get(`room:${roomID}`);
         
-        if (String(storedPassword) === String(roomPassword)) {
+        // Asegurarse de que storedPassword no sea null o undefined y compararlo estrictamente
+        if (storedPassword !== null && String(storedPassword) === String(roomPassword)) {
+            // Contraseña correcta
             socket.join(roomID);
-
-            // Asegurarse de que `lRange` sea llamada de esta manera
             const messages = await redisClient.lrange(`messages:${roomID}`, 0, -1);
             socket.emit('previousMessages', messages);
             console.log(`Usuario se unió a la sala: ${roomID}`);
         } else {
+            // Contraseña incorrecta
             socket.emit('error', 'Contraseña incorrecta');
             console.log(`Contraseña incorrecta para la sala ${roomID}. Esperada: ${storedPassword}, Proporcionada: ${roomPassword}`);
         }
@@ -87,6 +86,7 @@ socket.on('createRoom', async ({ roomID, roomPassword }) => {
         socket.emit('error', 'Error al procesar la solicitud');
     }
 });
+
 
 
     // Manejar solicitud de mensajes previos (al hacer clic en el botón de "Ver Mensajes")
