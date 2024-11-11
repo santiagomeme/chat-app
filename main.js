@@ -11,8 +11,9 @@ const cors = require('cors');
 
 const app = express();
 
+// Configuración de CORS solo para la URL de Railway
 const corsOptions = {
-    origin: ['https://chat-app-e3480.web.app', 'https://chat-app-kohl-psi.vercel.app'],
+    origin: 'https://chat-app-production-a7bb.up.railway.app',
     methods: ['GET', 'POST'],
     credentials: true,
 };
@@ -27,7 +28,7 @@ const server = http.createServer(app);
 // Configuración de Socket.IO con CORS
 const io = socketIO(server, {
     cors: {
-        origin: ['https://chat-app-kohl-psi.vercel.app'],
+        origin: 'https://chat-app-production-a7bb.up.railway.app',
         methods: ['GET', 'POST'],
         allowedHeaders: ['my-custom-header'],
         credentials: true,

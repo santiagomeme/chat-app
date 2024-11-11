@@ -2,11 +2,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const socket = io(
         window.location.hostname === 'localhost'
             ? 'http://localhost:3000'
-            : 'https://chat-app-kohl-psi.vercel.app',
+            : 'https://chat-app-production-a7bb.up.railway.app', // URL de Railway
         {
             transports: ['polling'] // Forzar a usar polling si WebSocket falla
         }
     );
+    
 
     const createRoomBtn = document.getElementById('createRoomBtn');
     const joinRoomBtn = document.getElementById('joinRoomBtn');
