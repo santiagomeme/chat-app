@@ -40,21 +40,20 @@ const redisClient = redis.createClient({
 
 redisClient.on('connect', function() {
     console.log('Conectado a Redis');
+    (async () => {
+        try {
+            await redisClient.ping(); // Verificar la conexión solo cuando esté conectada
+            console.log('Conectado a Redis en Upstash');
+        } catch (err) {
+            console.error('Error al conectar a Redis en Upstash', err);
+        }
+    })();
 });
 
 redisClient.on('error', function(err) {
     console.log('Error en la conexión de Redis:', err);
 });
 
-// Conectar y manejar errores
-(async () => {
-    try {
-        await redisClient.ping(); // Verificar la conexión
-        console.log('Conectado a Redis en Upstash');
-    } catch (err) {
-        console.error('Error al conectar a Redis en Upstash', err);
-    }
-})();
 
 
 
