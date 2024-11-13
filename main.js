@@ -86,7 +86,7 @@ socket.on('joinRoom', async ({ roomID, roomPassword }) => {
         if (storedPassword !== null && String(storedPassword) === String(roomPassword)) {
             // Contraseña correcta
             socket.join(roomID);
-            const messages = await redisClient.lrange(`messages:${roomID}`, 0, -1);
+            const messages = await redisClient.sendCommand(['LRANGE', `messages:${roomID}`, '0', '-1']);
             socket.emit('previousMessages', messages);
             console.log(`Usuario se unió a la sala: ${roomID}`);
         } else {
@@ -104,17 +104,30 @@ socket.on('joinRoom', async ({ roomID, roomPassword }) => {
 
     // Manejar solicitud de mensajes previos (al hacer clic en el botón de "Ver Mensajes")
     socket.on('requestPreviousMessages', async (roomID) => {
-        const messages = await redisClient.lrange(`messages:${roomID}`, 0, -1); // Obtener mensajes de la sala
+        const messages = await redisClient.lRange(`messages:${roomID}`, 0, -1); // Obtener mensajes de la sala
         socket.emit('previousMessages', messages); // Enviar mensajes al cliente
     });
 
-    // Enviar mensaje en la sala
-    socket.on('sendMessage', async ({ roomID, message }) => {
-        io.to(roomID).emit('message', message);
-        await redisClient.lpush(`messages:${roomID}`, message);
+   // Enviar mensaje en la sala
+socket.on('sendMessage', async ({ roomID, message }) => {
+    try {
+        // Borrar la clave de mensajes si existe previamente
+        await redisClient.del(`messages:${roomID}`);
+
+        // Luego, empujar el nuevo mensaje a la lista de mensajes de la sala
+        await redisClient.sendCommand(['LPUSH', `messages:${roomID}`, message]);
+
+        // Establecer un tiempo de expiración para los mensajes (opcional)
         await redisClient.expire(`messages:${roomID}`, 60 * 60 * 24);
+
+        // Enviar el mensaje a todos los usuarios conectados a la sala
+        io.to(roomID).emit('message', message);
         console.log(`Mensaje guardado en la sala ${roomID}: ${message}`);
-    });
+    } catch (error) {
+        console.error('Error al guardar el mensaje:', error);
+    }
+});
+
 
    
 
