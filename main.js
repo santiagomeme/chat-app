@@ -38,12 +38,13 @@ const redisClient = redis.createClient({
     url: process.env.REDIS_CONNECTION_URL
 });
 
-redisClient.connect()
-    .then(() => console.log('Conectado a Redis correctamente'))
-    .catch((err) => console.error('Error al conectar a Redis:', err));
+redisClient.on('connect', function() {
+    console.log('Conectado a Redis');
+});
 
-redisClient.on('error', (err) => console.error('Redis Client Error', err));
-
+redisClient.on('error', function(err) {
+    console.log('Error en la conexión de Redis:', err);
+});
 
 // Conectar y manejar errores
 (async () => {
