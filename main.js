@@ -37,9 +37,11 @@ const io = socketIO(server, {
 const redisClient = redis.createClient({
     url: process.env.REDIS_CONNECTION_URL,
     socket: {
-        reconnectStrategy: () => 1000 // Intentar reconectar cada 1 segundo
+      reconnectStrategy: retries => Math.min(retries * 50, 2000),
+      timeout: 5000 // tiempo de espera de 5 segundos
     }
-});
+  });
+  
 
 redisClient.connect().catch(err => console.error('No se pudo conectar a Redis:', err));
 
