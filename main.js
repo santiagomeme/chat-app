@@ -1,5 +1,5 @@
 require('dotenv').config(); // Cargar variables del archivo .env
-const { Redis } = require('@upstash/redis'); // Importar la biblioteca para Redis de Upstash
+const { Redis } = require('redis'); // Importar la biblioteca para Redis de Upstash
 
 console.log('UPSTASH_REDIS_URL:', process.env.UPSTASH_REDIS_URL);
 console.log('UPSTASH_REDIS_TOKEN:', process.env.UPSTASH_REDIS_TOKEN);
@@ -35,11 +35,16 @@ const io = socketIO(server, {
     },
 });
 
-// Configuración de Redis
-const redisClient = new Redis({
-    url: process.env.UPSTASH_REDIS_URL,
-    token: process.env.UPSTASH_REDIS_TOKEN,
+const redisClient = redis.createClient({
+    url: process.env.REDIS_CONNECTION_URL
 });
+
+redisClient.connect()
+    .then(() => console.log('Conectado a Redis correctamente'))
+    .catch((err) => console.error('Error al conectar a Redis:', err));
+
+redisClient.on('error', (err) => console.error('Redis Client Error', err));
+
 
 // Conectar y manejar errores
 (async () => {
