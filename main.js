@@ -43,9 +43,9 @@ redisClient.on('connect', function() {
     (async () => {
         try {
             await redisClient.ping(); // Verificar la conexión solo cuando esté conectada
-            console.log('Conectado a Redis en Upstash');
+            console.log('Conectado a Redis en rayl');
         } catch (err) {
-            console.error('Error al conectar a Redis en Upstash', err);
+            console.error('Error al conectar a Redis en rayl', err);
         }
     })();
 });
@@ -69,6 +69,7 @@ socket.on('createRoom', async ({ roomID, roomPassword }) => {
     await redisClient.set(`room:${roomID}`, String(roomPassword));
     console.log(`Sala creada: ${roomID} con contraseña: ${roomPassword}`);
 });
+
 // Unirse a una sala
 socket.on('joinRoom', async ({ roomID, roomPassword }) => {
     try {
@@ -106,11 +107,6 @@ socket.on('joinRoom', async ({ roomID, roomPassword }) => {
         await redisClient.lpush(`messages:${roomID}`, message);
         await redisClient.expire(`messages:${roomID}`, 60 * 60 * 24);
         console.log(`Mensaje guardado en la sala ${roomID}: ${message}`);
-    });
-
-    socket.on('leaveRoom', (roomID) => {
-        socket.leave(roomID);
-        console.log(`Usuario salió de la sala: ${roomID}`);
     });
 
    
