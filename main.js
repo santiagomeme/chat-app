@@ -1,5 +1,5 @@
 require('dotenv').config(); // Cargar variables del archivo .env
-const { Redis } = require('redis'); // Importar la biblioteca para Redis de Upstash
+const redis = require('redis');
 
 console.log('REDIS_CONNECTION_URL:', process.env.REDIS_CONNECTION_URL);
 
