@@ -10,12 +10,12 @@ const cors = require('cors');
 
 const app = express();
 
-// Configuración de CORS solo para la URL de Railway
 const corsOptions = {
-    origin: 'https://chat-app-production-a7bb.up.railway.app',
+    origin: process.env.CORS_ORIGIN || 'https://chat-app-production-a7bb.up.railway.app',
     methods: ['GET', 'POST'],
     credentials: true,
 };
+
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // Manejar todas las solicitudes OPTIONS
@@ -27,7 +27,7 @@ const server = http.createServer(app);
 // Configuración de Socket.IO con CORS
 const io = socketIO(server, {
     cors: {
-        origin: 'https://chat-app-production-a7bb.up.railway.app',
+        origin: ['https://chat-app-production-a7bb.up.railway.app','http://localhost:3000'],
         methods: ['GET', 'POST'],
         allowedHeaders: ['my-custom-header'],
         credentials: true,
@@ -35,8 +35,14 @@ const io = socketIO(server, {
 });
 
 const redisClient = redis.createClient({
-    url: process.env.REDIS_CONNECTION_URL
+    url: process.env.REDIS_CONNECTION_URL,
+    socket: {
+        reconnectStrategy: () => 1000 // Intentar reconectar cada 1 segundo
+    }
 });
+
+redisClient.connect().catch(err => console.error('No se pudo conectar a Redis:', err));
+
 
 redisClient.on('connect', function() {
     console.log('Conectado a Redis');
@@ -50,11 +56,12 @@ redisClient.on('connect', function() {
     })();
 });
 
-redisClient.on('error', function(err) {
-    console.log('Error en la conexión de Redis:', err);
+redisClient.on('error', (err) => {
+    console.error('Error en la conexión de Redis:', err);
 });
-
-
+redisClient.on('reconnecting', () => {
+    console.log('Intentando reconectar a Redis...');
+});
 
 
 io.on('connection', (socket) => {
