@@ -23,12 +23,40 @@ const messagesDiv = document.getElementById("messages");
 const roomNameSpan = document.getElementById("roomName");
 const chatDiv = document.getElementById("chat");
 
+// Validación en tiempo real de la contraseña
+roomPasswordInput.addEventListener("input", () => {
+    const password = roomPasswordInput.value;
+    const feedback = document.getElementById("passwordFeedback"); // Este elemento debe existir en tu HTML
+
+    if (validarPassword(password)) {
+        feedback.style.color = "green";
+        feedback.textContent = "La contraseña es válida.";
+    } else {
+        feedback.style.color = "red";
+        feedback.textContent = "Debe tener al menos 8 caracteres, una mayúscula, un número y un signo especial.";
+    }
+});
+
+
 let currentRoomID = null;
+
+
+// Validar contraseña
+function validarPassword(password) {
+    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+    return regex.test(password);
+}
+
 
 // Función para crear una sala con contraseña
 async function crearSala() {
     const salaID = roomIDInput.value;
     const password = roomPasswordInput.value;
+
+    if (!validarPassword(password)) {
+        alert("La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un signo especial.");
+        return;
+    }
 
     if (salaID && password) {
         try {

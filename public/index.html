@@ -18,6 +18,17 @@
     display: none;
 }
 
+small {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: gray;
+}
+
+#passwordFeedback {
+    font-weight: bold;
+}
+
 
   </style>
   </head>
@@ -34,6 +45,7 @@
     <input type="text" id="roomID" placeholder="ID de la sala">
     <label for="roomPassword">Contraseña:</label>
     <input type="password" id="roomPassword" placeholder="Contraseña">
+    <small id="passwordFeedback">La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un signo especial.</small>
     <button id="createRoomBtn">Crear Sala</button>
     <button id="joinRoomBtn">Unirse a Sala</button>
     <button id="showMessagesBtn">Ver Mensajes</button>
