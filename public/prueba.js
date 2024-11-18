@@ -1,70 +1,133 @@
-const express = require('express');
-const http = require('http');
-const socketIO = require('socket.io');
-const redis = require('redis');
+import { db } from "./firebaseConfig.js";
+import {
+    doc,
+    setDoc,
+    getDoc,
+    collection,
+    addDoc,
+    onSnapshot,
+    query,
+    orderBy,
+    serverTimestamp,
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
+// Elementos del DOM
+const roomIDInput = document.getElementById("roomID");
+const roomPasswordInput = document.getElementById("roomPassword");
+const createRoomBtn = document.getElementById("createRoomBtn");
+const joinRoomBtn = document.getElementById("joinRoomBtn");
+const messageInput = document.getElementById("messageInput");
+const sendMessageBtn = document.getElementById("sendMessageBtn");
+const leaveRoomBtn = document.getElementById("leaveRoomBtn");
+const messagesDiv = document.getElementById("messages");
+const roomNameSpan = document.getElementById("roomName");
+const chatDiv = document.getElementById("chat");
 
-// Conexión a Redis usando la URL pública de Railway
-const redisClient = redis.createClient({
-    url: 'redis://default:DVsYLOjBpPMTejNqRYXlhGfmjijEzIUR@junction.proxy.rlwy.net:49133'
-});
+let currentRoomID = null;
 
-// Conectar a Redis
-redisClient.connect().then(() => {
-    console.log('Conectado a Redis en Railway');
-}).catch(err => {
-    console.error('Error al conectar a Redis', err);
-});
+// Función para crear una sala con contraseña
+async function crearSala() {
+    const salaID = roomIDInput.value;
+    const password = roomPasswordInput.value;
 
-const rooms = {}; // Manejará las salas creadas
+    if (salaID && password) {
+        try {
+            await setDoc(doc(db, "salas", salaID), { password: password });
+            currentRoomID = salaID; // Asigna el ID actual
+            roomNameSpan.textContent = salaID; // Actualiza el nombre de la sala en la interfaz
+            chatDiv.style.display = "block"; // Muestra el chat
+            escucharMensajes(); // Activa la escucha de mensajes en la sala creada
 
-app.use(express.static('public'));
-
-io.on('connection', (socket) => {
-    console.log('Nuevo usuario conectado');
-
-    // Crear una sala
-    socket.on('createRoom', async ({ roomID, roomPassword }) => {
-        rooms[roomID] = roomPassword; // Esto aún está en memoria local
-        socket.join(roomID);
-        io.to(roomID).emit('message', 'Sala creada');
-        
-        // Guardar la sala y contraseña en Redis
-        await redisClient.hSet(`room:${roomID}`, 'password', roomPassword);
-    });
-
-    // Unirse a una sala
-    socket.on('joinRoom', async ({ roomID, roomPassword }) => {
-        // Verificar contraseña de la sala en Redis
-        const storedPassword = await redisClient.hGet(`room:${roomID}`, 'password');
-        
-        if (storedPassword === roomPassword) {
-            socket.join(roomID);
-            io.to(roomID).emit('message', 'Nuevo usuario en la sala');
-        } else {
-            socket.emit('error', 'Contraseña incorrecta');
+            alert("Sala creada con éxito.");
+        } catch (error) {
+            console.error("Error al crear la sala:", error);
         }
+    } else {
+        alert("Debes ingresar un ID de sala y una contraseña.");
+    }
+}
+
+
+// Función para unirse a una sala y verificar la contraseña
+async function unirseSala() {
+    const salaID = roomIDInput.value;
+    const password = roomPasswordInput.value;
+
+    if (salaID && password) {
+        try {
+            const salaRef = doc(db, "salas", salaID);
+            const salaSnap = await getDoc(salaRef);
+
+            if (!salaSnap.exists()) {
+                alert("La sala no existe.");
+                return;
+            }
+
+            const salaData = salaSnap.data();
+            if (salaData.password === password) {
+                currentRoomID = salaID;
+                roomNameSpan.textContent = salaID;
+                chatDiv.style.display = "block";
+                messagesDiv.innerHTML = ""; // Limpia mensajes previos
+                escucharMensajes();
+                alert("Te has unido a la sala.");
+            } else {
+                alert("Contraseña incorrecta.");
+            }
+        } catch (error) {
+            console.error("Error al unirse a la sala:", error);
+        }
+    } else {
+        alert("Debes ingresar un ID de sala y una contraseña.");
+    }
+}
+
+// Función para enviar un mensaje
+async function enviarMensaje() {
+    const contenido = messageInput.value.trim();
+    if (currentRoomID && contenido) {
+        try {
+            const mensajesRef = collection(db, "salas", currentRoomID, "mensajes");
+            await addDoc(mensajesRef, {
+                usuario: "Usuario", // Puedes modificar para agregar un nombre de usuario dinámico
+                contenido: contenido,
+                timestamp: serverTimestamp(),
+            });
+            messageInput.value = ""; // Limpiar el campo de entrada
+        } catch (error) {
+            console.error("Error al enviar mensaje:", error);
+        }
+    } else {
+        alert("Debes ingresar un mensaje para enviar.");
+    }
+}
+
+// Función para escuchar mensajes en tiempo real
+function escucharMensajes() {
+    const mensajesRef = collection(db, "salas", currentRoomID, "mensajes");
+    const q = query(mensajesRef, orderBy("timestamp"));
+
+    onSnapshot(q, (snapshot) => {
+        messagesDiv.innerHTML = ""; // Limpiar mensajes previos
+        snapshot.forEach((doc) => {
+            const mensaje = doc.data();
+            const mensajeElemento = document.createElement("div");
+            mensajeElemento.textContent = `${mensaje.usuario}: ${mensaje.contenido}`;
+            messagesDiv.appendChild(mensajeElemento);
+        });
     });
+}
 
-    // Enviar mensaje en la sala
-    socket.on('sendMessage', async ({ roomID, message }) => {
-        io.to(roomID).emit('message', message);
+// Función para salir de la sala
+function salirSala() {
+    currentRoomID = null;
+    roomNameSpan.textContent = "";
+    chatDiv.style.display = "none";
+    messagesDiv.innerHTML = ""; // Limpiar mensajes de la sala
+}
 
-        // Guardar el mensaje temporalmente en Redis
-        await redisClient.rPush(`messages:${roomID}`, message);
-
-        // Establecer una caducidad para los mensajes (por ejemplo, 24 horas)
-        await redisClient.expire(`messages:${roomID}`, 60 * 60 * 24); // 24 horas de vida para los mensajes
-    });
-
-    // Desconexión de usuarios
-    socket.on('disconnect', () => {
-        console.log('Usuario desconectado');
-    });
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Servidor escuchando en el puerto ${PORT}`));
+// Asigna eventos a los botones
+createRoomBtn.addEventListener("click", crearSala);
+joinRoomBtn.addEventListener("click", unirseSala);
+sendMessageBtn.addEventListener("click", enviarMensaje);
+leaveRoomBtn.addEventListener("click", salirSala);

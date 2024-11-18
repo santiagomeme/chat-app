@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Welcome to chat app</title>
 
+ 
     <style>
       #messagePanel {
           display: none;
@@ -12,10 +13,17 @@
           padding: 10px;
           margin-top: 10px;
       }
+
+      #chat {
+    display: none;
+}
+
+
   </style>
   </head>
   <body>
 
+   
 
 
 <h1>Bienvenido al chat</h1>
@@ -44,11 +52,13 @@
 
 <div id="messagePanel"></div>
 
-
-
 <!-- Carga de Socket.IO desde una CDN -->
 <script defer src="https://cdn.socket.io/4.8.0/socket.io.min.js"></script>
-<script defer src="script.js"></script>
+<script  type="module" src="./prueba.js"></script>
+
+
+
+
 
 
   </body>
