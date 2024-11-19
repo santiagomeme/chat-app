@@ -3,13 +3,19 @@ import {
     doc,
     setDoc,
     getDoc,
+    getDocs,
     collection,
     addDoc,
     onSnapshot,
     query,
     orderBy,
     serverTimestamp,
+    deleteDoc,
+    updateDoc,
+    arrayUnion,
+    where
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
 
 // Elementos del DOM
 const roomIDInput = document.getElementById("roomID");
@@ -22,6 +28,8 @@ const leaveRoomBtn = document.getElementById("leaveRoomBtn");
 const messagesDiv = document.getElementById("messages");
 const roomNameSpan = document.getElementById("roomName");
 const chatDiv = document.getElementById("chat");
+const deleteRoomBtn = document.getElementById("deleteRoomBtn");
+deleteRoomBtn.addEventListener("click", eliminarSala);
 
 // Validación en tiempo real de la contraseña
 roomPasswordInput.addEventListener("input", () => {
@@ -50,7 +58,7 @@ function validarPassword(password) {
 
 // Función para crear una sala con contraseña
 async function crearSala() {
-    const salaID = roomIDInput.value;
+    const salaNombre = roomIDInput.value; // Nombre de la sala ingresado por el usuario
     const password = roomPasswordInput.value;
 
     if (!validarPassword(password)) {
@@ -58,57 +66,83 @@ async function crearSala() {
         return;
     }
 
-    if (salaID && password) {
+    if (salaNombre && password) {
         try {
-            await setDoc(doc(db, "salas", salaID), { password: password });
-            currentRoomID = salaID; // Asigna el ID actual
-            roomNameSpan.textContent = salaID; // Actualiza el nombre de la sala en la interfaz
-            chatDiv.style.display = "block"; // Muestra el chat
-            escucharMensajes(); // Activa la escucha de mensajes en la sala creada
+            const salasRef = collection(db, "salas");
+
+            // Verificar si ya existe una sala con el mismo nombre
+            const existingQuery = await getDocs(query(salasRef, where("nombre", "==", salaNombre)));
+            if (!existingQuery.empty) {
+                alert("El nombre de la sala ya está en uso. Por favor, elige otro nombre.");
+                return;
+            }
+
+            // Crear una sala con un ID único y guardar el nombre visible como un campo
+            const roomRef = await addDoc(salasRef, {
+                nombre: salaNombre, // Campo para el nombre visible
+                password: password, // Campo para la contraseña
+            });
+
+            currentRoomID = roomRef.id; // ID único de la sala
+            roomNameSpan.textContent = salaNombre; // Mostrar el nombre visible
+            chatDiv.style.display = "block"; // Mostrar el chat
+            escucharMensajes(); // Activar la escucha de mensajes
 
             alert("Sala creada con éxito.");
         } catch (error) {
             console.error("Error al crear la sala:", error);
         }
     } else {
-        alert("Debes ingresar un ID de sala y una contraseña.");
+        alert("Debes ingresar un nombre de sala y una contraseña.");
     }
 }
+
 
 
 // Función para unirse a una sala y verificar la contraseña
 async function unirseSala() {
-    const salaID = roomIDInput.value;
+    const salaNombre = roomIDInput.value; // Nombre de la sala ingresado por el usuario
     const password = roomPasswordInput.value;
 
-    if (salaID && password) {
+    if (salaNombre && password) {
         try {
-            const salaRef = doc(db, "salas", salaID);
-            const salaSnap = await getDoc(salaRef);
+            // Buscar el documento que coincida con el nombre de la sala
+            const salasRef = collection(db, "salas");
+            const querySnapshot = await getDocs(query(salasRef, where("nombre", "==", salaNombre)));
 
-            if (!salaSnap.exists()) {
+            if (querySnapshot.empty) {
                 alert("La sala no existe.");
                 return;
             }
 
-            const salaData = salaSnap.data();
-            if (salaData.password === password) {
-                currentRoomID = salaID;
-                roomNameSpan.textContent = salaID;
-                chatDiv.style.display = "block";
-                messagesDiv.innerHTML = ""; // Limpia mensajes previos
-                escucharMensajes();
-                alert("Te has unido a la sala.");
-            } else {
+            // Verificar la contraseña
+            let salaEncontrada = null;
+            querySnapshot.forEach((doc) => {
+                if (doc.data().password === password) {
+                    salaEncontrada = doc; // Encontrar la sala con la contraseña correcta
+                }
+            });
+
+            if (!salaEncontrada) {
                 alert("Contraseña incorrecta.");
+                return;
             }
+
+            // Si se encuentra la sala, establecer el ID actual y mostrar el chat
+            currentRoomID = salaEncontrada.id; // Guardar el ID de la sala
+            roomNameSpan.textContent = salaNombre; // Mostrar el nombre visible
+            chatDiv.style.display = "block"; // Mostrar el chat
+            escucharMensajes(); // Activar la escucha de mensajes
+
+            alert("Unido a la sala con éxito.");
         } catch (error) {
             console.error("Error al unirse a la sala:", error);
         }
     } else {
-        alert("Debes ingresar un ID de sala y una contraseña.");
+        alert("Debes ingresar un nombre de sala y una contraseña.");
     }
 }
+
 
 // Función para enviar un mensaje
 async function enviarMensaje() {
@@ -148,11 +182,33 @@ function escucharMensajes() {
 
 // Función para salir de la sala
 function salirSala() {
-    currentRoomID = null;
-    roomNameSpan.textContent = "";
-    chatDiv.style.display = "none";
-    messagesDiv.innerHTML = ""; // Limpiar mensajes de la sala
+       location.reload();
+
 }
+
+
+
+async function eliminarSala() {
+    if (!currentRoomID) {
+        alert("No estás en ninguna sala.");
+        return;
+    }
+
+    try {
+        const salaRef = doc(db, "salas", currentRoomID);
+
+        // Intenta eliminar la sala
+        await deleteDoc(salaRef);
+
+        alert("Sala eliminada con éxito.");
+        // Restablecer la interfaz después de la eliminación
+        salirSala();
+    } catch (error) {
+        console.error("Error al eliminar la sala:", error);
+        alert("No se pudo eliminar la sala. Asegúrate de tener permisos.");
+    }
+}
+  
 
 // Asigna eventos a los botones
 createRoomBtn.addEventListener("click", crearSala);

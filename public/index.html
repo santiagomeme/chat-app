@@ -49,6 +49,7 @@ small {
     <button id="createRoomBtn">Crear Sala</button>
     <button id="joinRoomBtn">Unirse a Sala</button>
     <button id="showMessagesBtn">Ver Mensajes</button>
+    <button id="deleteRoomBtn">Eliminar Sala</button>
 
 </div>
 
@@ -75,3 +76,17 @@ small {
 
   </body>
 </html>
+
+
+<!-- rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /salas/{roomID} {
+      allow read, write: if true;
+    }
+    match /salas/{roomID}/mensajes/{messageID} {
+      allow read, write: if true;
+    }
+  }
+}
+-->
