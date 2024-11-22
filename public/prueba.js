@@ -146,12 +146,19 @@ async function unirseSala() {
 
 // Función para enviar un mensaje
 async function enviarMensaje() {
+    const userName = localStorage.getItem("userName"); // Recupera el nombre del usuario almacenado
     const contenido = messageInput.value.trim();
+
+    if (!userName) {
+        alert("Por favor, ingresa tu nombre antes de enviar un mensaje.");
+        return;
+    }
+
     if (currentRoomID && contenido) {
         try {
             const mensajesRef = collection(db, "salas", currentRoomID, "mensajes");
             await addDoc(mensajesRef, {
-                usuario: "Usuario", // Puedes modificar para agregar un nombre de usuario dinámico
+                usuario: userName, // Utiliza el nombre del usuario
                 contenido: contenido,
                 timestamp: serverTimestamp(),
             });
@@ -179,6 +186,24 @@ function escucharMensajes() {
         });
     });
 }
+
+document.getElementById("joinRoomBtn").addEventListener("click", () => {
+    const userName = document.getElementById("userName").value;
+    const roomName = document.getElementById("roomID").value;
+    const roomPassword = document.getElementById("roomPassword").value;
+  
+    if (!userName || !roomName || !roomPassword) {
+      alert("Por favor, completa todos los campos.");
+      return;
+    }
+  
+    // Guarda el nombre del usuario al unirse a la sala
+    localStorage.setItem("userName", userName);
+    
+    // Lógica para unirse a la sala...
+  });
+  
+
 
 // Función para salir de la sala
 function salirSala() {
