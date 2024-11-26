@@ -23,7 +23,9 @@ h1{
   color: rgb(0, 0, 0);
 }
 h6{
-  color:rgb(168, 0, 0);
+  color:rgb(255, 255, 255);
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 /* Estilo general para centrar todo el contenido en la pantalla */
@@ -71,8 +73,24 @@ input[type="password"] {
   margin: 10px 0; /* Espaciado vertical */
   padding: 10px;
   font-size: 16px;
-  border: 1px solid #ccc;
+  border: 1px solid #000000;
   border-radius: 5px;
   width: 80%; /* Ancho relativo */
-  max-width: 400px; /* Ancho máximo */
+  max-width: 300px; /* Ancho máximo */
+}
+
+.imgLogo{
+  height: 200px;
+  width: 200px;
+  margin-top: 50px;
+}
+
+
+.red-text {
+  color: red;
+}
+
+body {
+  background-color: black;
+  color: white; /* Cambia el color del texto a blanco para que sea visible */
 }
