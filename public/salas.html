@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat Seguro </title>
+
+    <link rel="icon" href="imagenes/favicont.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="style.css">
+ 
+  </head>
+  <body>
+
+    <div class="logo"><img class="imgLogo"  src="imagenes/favicont.png" alt="logo" ></div>
+
+
+
+<h1>Chat Seguro</h1>
+<!--
+<h6>Los datos como contraseñas que introduces en este sitio</h6>
+<h6> son solo para la creacion de las salas de chat</h6>
+<h6> no son datos personales o financieros</h6>-->
+
+<h6>  <span class="red-text">ADVERTENCIA:</span>
+  Asegurate de estar en modo INCOGNITO en el navegador para evitar rastreos en tu dispositivo</h6>
+<h6>  <span class="red-text">ADVERTENCIA:</span>
+  Por tu seguridad si pierdes la contraseña que establescas, no podras reestablecerla y no podras entrar a la sala de chat otra vez</h6>
+
+
+  <h4>Crea la sala de chat y comparte el nombre de la sala y la contraseña solo con las personas que quieras chatear en privado</h4>
+
+
+<div id="createJoinRoom">
+    <h3>Crear o Unirse a una Sala</h3>
+    <label for="roomID">Nombre de la sala:</label>
+    <br>
+    <input type="text" id="roomID" placeholder="Nombre de la sala">
+    <br>
+    <label for="userName">Tu nombre:</label>
+    <br>
+    <input type="text" id="userName" placeholder="Ingresa tu nombre">
+    <br>
+    <label for="roomPassword">Contraseña:</label>
+    <br>
+    <input type="password" id="roomPassword" placeholder="Contraseña">
+    <small id="passwordFeedback">La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un signo especial. </small>
+
+    <br>
+ 
+
+    <button id="createRoomBtn">Crear Sala</button>
+    <button id="joinRoomBtn">Unirse a Sala</button>
+    <button id="showMessagesBtn">Ver Mensajes</button>
+    <button id="deleteRoomBtn">Eliminar Sala</button>
+  
+</div>
+
+
+
+<div id="chat">
+    <h3>Chat en Sala: <span id="roomName"></span></h3>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Escribe un mensaje">
+    <button id="sendMessageBtn">Enviar</button>
+    <button id="leaveRoomBtn">Salir de la Sala</button>
+</div>
+
+<div id="messagePanel"></div>
+
+<!-- Carga de Socket.IO desde una CDN -->
+<script defer src="https://cdn.socket.io/4.8.0/socket.io.min.js"></script>
+<script  type="module" src="./prueba.js"></script>
+
+
+
+
+
+
+  </body>
+</html>
+
+

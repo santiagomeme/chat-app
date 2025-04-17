@@ -1,83 +1,77 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Chat Seguro </title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChatApp - Bienvenido</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
 
-    <link rel="icon" href="imagenes/favicont.ico" type="image/x-icon">
+    img {
+      width: 150px;
+      max-width: 80%;
+      margin-bottom: 30px;
+    }
 
-    <link rel="stylesheet" href="style.css">
- 
-  </head>
-  <body>
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
 
-    <div class="logo"><img class="imgLogo"  src="imagenes/favicont.png" alt="logo" ></div>
+    p {
+      font-size: 1rem;
+      margin-bottom: 30px;
+      color: #ccc;
+      max-width: 90%;
+    }
 
+    .btn {
+      background-color: #fff;
+      color: #000;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
 
+    .btn:hover {
+      background-color: #ddd;
+    }
 
-<h1>Chat Seguro</h1>
-<!--
-<h6>Los datos como contraseñas que introduces en este sitio</h6>
-<h6> son solo para la creacion de las salas de chat</h6>
-<h6> no son datos personales o financieros</h6>-->
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
 
-<h6>  <span class="red-text">ADVERTENCIA:</span>
-  Asegurate de estar en modo INCOGNITO en el navegador para evitar rastreos en tu dispositivo</h6>
-<h6>  <span class="red-text">ADVERTENCIA:</span>
-  Por tu seguridad si pierdes la contraseña que establescas, no podras reestablecerla y no podras entrar a la sala de chat otra vez</h6>
+      p {
+        font-size: 0.95rem;
+      }
 
-
-  <h4>Crea la sala de chat y comparte el nombre de la sala y la contraseña solo con las personas que quieras chatear en privado</h4>
-
-
-<div id="createJoinRoom">
-    <h3>Crear o Unirse a una Sala</h3>
-    <label for="roomID">Nombre de la sala:</label>
-    <br>
-    <input type="text" id="roomID" placeholder="Nombre de la sala">
-    <br>
-    <label for="userName">Tu nombre:</label>
-    <br>
-    <input type="text" id="userName" placeholder="Ingresa tu nombre">
-    <br>
-    <label for="roomPassword">Contraseña:</label>
-    <br>
-    <input type="password" id="roomPassword" placeholder="Contraseña">
-    <small id="passwordFeedback">La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un signo especial. </small>
-
-    <br>
- 
-
-    <button id="createRoomBtn">Crear Sala</button>
-    <button id="joinRoomBtn">Unirse a Sala</button>
-    <button id="showMessagesBtn">Ver Mensajes</button>
-    <button id="deleteRoomBtn">Eliminar Sala</button>
-  
-</div>
-
-
-
-<div id="chat">
-    <h3>Chat en Sala: <span id="roomName"></span></h3>
-    <div id="messages"></div>
-    <input type="text" id="messageInput" placeholder="Escribe un mensaje">
-    <button id="sendMessageBtn">Enviar</button>
-    <button id="leaveRoomBtn">Salir de la Sala</button>
-</div>
-
-<div id="messagePanel"></div>
-
-<!-- Carga de Socket.IO desde una CDN -->
-<script defer src="https://cdn.socket.io/4.8.0/socket.io.min.js"></script>
-<script  type="module" src="./prueba.js"></script>
-
-
-
-
-
-
-  </body>
+      .btn {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <img src="imagenes/favicont.png" alt="Logo de ChatApp">
+  <h1>Bienvenido a ChatApp</h1>
+  <p>Conéctate con otros en tiempo real. Crea tu propia sala de chat en segundos.</p>
+  <button class="btn" onclick="window.location.href='salas.html'">Crear una sala de chat</button>
+</body>
 </html>
-
-
