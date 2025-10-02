@@ -59,41 +59,46 @@ function validarPassword(password) {
 // Función para crear una sala con contraseña
 async function crearSala() {
     const salaNombre = roomIDInput.value; // Nombre de la sala ingresado por el usuario
+    const userName = document.getElementById("userName").value; // 👈 toma el nombre del usuario
     const password = roomPasswordInput.value;
+
+    if (!userName || !salaNombre || !password) {
+        alert("Debes ingresar tu nombre, el nombre de la sala y una contraseña.");
+        return;
+    }
 
     if (!validarPassword(password)) {
         alert("La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un signo especial.");
         return;
     }
 
-    if (salaNombre && password) {
-        try {
-            const salasRef = collection(db, "salas");
+    try {
+        const salasRef = collection(db, "salas");
 
-            // Verificar si ya existe una sala con el mismo nombre
-            const existingQuery = await getDocs(query(salasRef, where("nombre", "==", salaNombre)));
-            if (!existingQuery.empty) {
-                alert("El nombre de la sala ya está en uso. Por favor, elige otro nombre.");
-                return;
-            }
-
-            // Crear una sala con un ID único y guardar el nombre visible como un campo
-            const roomRef = await addDoc(salasRef, {
-                nombre: salaNombre, // Campo para el nombre visible
-                password: password, // Campo para la contraseña
-            });
-
-            currentRoomID = roomRef.id; // ID único de la sala
-            roomNameSpan.textContent = salaNombre; // Mostrar el nombre visible
-            chatDiv.style.display = "block"; // Mostrar el chat
-            escucharMensajes(); // Activar la escucha de mensajes
-
-            alert("Sala creada con éxito.");
-        } catch (error) {
-            console.error("Error al crear la sala:", error);
+        // Verificar si ya existe una sala con el mismo nombre
+        const existingQuery = await getDocs(query(salasRef, where("nombre", "==", salaNombre)));
+        if (!existingQuery.empty) {
+            alert("El nombre de la sala ya está en uso. Por favor, elige otro nombre.");
+            return;
         }
-    } else {
-        alert("Debes ingresar un nombre de sala y una contraseña.");
+
+        // Crear una sala con un ID único y guardar el nombre visible como un campo
+        const roomRef = await addDoc(salasRef, {
+            nombre: salaNombre, 
+            password: password, 
+        });
+
+        // 👇 Guardamos el nombre del usuario en localStorage al crear la sala
+        localStorage.setItem("userName", userName);
+
+        currentRoomID = roomRef.id; 
+        roomNameSpan.textContent = salaNombre; 
+        chatDiv.style.display = "block"; 
+        escucharMensajes(); 
+
+        alert("Sala creada con éxito.");
+    } catch (error) {
+        console.error("Error al crear la sala:", error);
     }
 }
 
