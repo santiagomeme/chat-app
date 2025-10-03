@@ -1,5 +1,7 @@
 require('dotenv').config(); // Cargar variables del archivo .env
 const redis = require('redis');
+const bcrypt = require('bcrypt'); // 🔒 Para contraseñas
+const CryptoJS = require('crypto-js'); // 🔒 Para cifrar mensajes
 
 console.log('REDIS_CONNECTION_URL:', process.env.REDIS_CONNECTION_URL);
 
@@ -16,10 +18,8 @@ const corsOptions = {
     credentials: true,
 };
 
-
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Manejar todas las solicitudes OPTIONS
-
+app.options('*', cors(corsOptions));
 app.use(express.static('public'));
 
 const server = http.createServer(app);
@@ -27,7 +27,10 @@ const server = http.createServer(app);
 // Configuración de Socket.IO con CORS
 const io = socketIO(server, {
     cors: {
-        origin: ['https://chat-app-production-a7bb.up.railway.app','http://localhost:3000'],
+        origin: [
+            'https://chat-app-production-a7bb.up.railway.app',
+            'http://localhost:3000'
+        ],
         methods: ['GET', 'POST'],
         allowedHeaders: ['my-custom-header'],
         credentials: true,
@@ -37,23 +40,21 @@ const io = socketIO(server, {
 const redisClient = redis.createClient({
     url: process.env.REDIS_CONNECTION_URL,
     socket: {
-      reconnectStrategy: retries => Math.min(retries * 50, 2000),
-      timeout: 5000 // tiempo de espera de 5 segundos
+        reconnectStrategy: retries => Math.min(retries * 50, 2000),
+        timeout: 5000
     }
-  });
-  
+});
 
 redisClient.connect().catch(err => console.error('No se pudo conectar a Redis:', err));
-
 
 redisClient.on('connect', function() {
     console.log('Conectado a Redis');
     (async () => {
         try {
-            await redisClient.ping(); // Verificar la conexión solo cuando esté conectada
-            console.log('Conectado a Redis en rayl');
+            await redisClient.ping();
+            console.log('Conectado a Redis en railway');
         } catch (err) {
-            console.error('Error al conectar a Redis en rayl', err);
+            console.error('Error al conectar a Redis en railway', err);
         }
     })();
 });
@@ -65,81 +66,107 @@ redisClient.on('reconnecting', () => {
     console.log('Intentando reconectar a Redis...');
 });
 
-
 io.on('connection', (socket) => {
     console.log('Nuevo usuario conectado');
 
-   // Crear una sala
-socket.on('createRoom', async ({ roomID, roomPassword }) => {
-    socket.join(roomID);
-    io.to(roomID).emit('message', 'Sala creada');
-
-    // Guardar la contraseña en Redis
-    await redisClient.set(`room:${roomID}`, String(roomPassword));
-    console.log(`Sala creada: ${roomID} con contraseña: ${roomPassword}`);
-});
-
-// Unirse a una sala
-socket.on('joinRoom', async ({ roomID, roomPassword }) => {
-    try {
-        const storedPassword = await redisClient.get(`room:${roomID}`);
-        
-        // Asegurarse de que storedPassword no sea null o undefined y compararlo estrictamente
-        if (storedPassword !== null && String(storedPassword) === String(roomPassword)) {
-            // Contraseña correcta
+    // ✅ Crear una sala
+    socket.on('createRoom', async ({ roomID, roomPassword }) => {
+        try {
             socket.join(roomID);
-            const messages = await redisClient.sendCommand(['LRANGE', `messages:${roomID}`, '0', '-1']);
-            socket.emit('previousMessages', messages);
-            console.log(`Usuario se unió a la sala: ${roomID}`);
-        } else {
-            // Contraseña incorrecta
-            socket.emit('error', 'Contraseña incorrecta');
-            console.log(`Contraseña incorrecta para la sala ${roomID}. Esperada: ${storedPassword}, Proporcionada: ${roomPassword}`);
+
+            // 🔒 Hashear contraseña antes de guardar
+            const hashedPassword = await bcrypt.hash(roomPassword, 10);
+            await redisClient.set(`room:${roomID}`, hashedPassword);
+
+            io.to(roomID).emit('message', 'Sala creada de forma segura');
+            console.log(`Sala creada: ${roomID} (contraseña protegida con hash)`);
+        } catch (error) {
+            console.error('Error al crear sala:', error);
         }
-    } catch (error) {
-        console.error('Error al unirse a la sala:', error);
-        socket.emit('error', 'Error al procesar la solicitud');
-    }
-});
-
-
-
-    // Manejar solicitud de mensajes previos (al hacer clic en el botón de "Ver Mensajes")
-    socket.on('requestPreviousMessages', async (roomID) => {
-        const messages = await redisClient.lRange(`messages:${roomID}`, 0, -1); // Obtener mensajes de la sala
-        socket.emit('previousMessages', messages); // Enviar mensajes al cliente
     });
 
-   // Enviar mensaje en la sala
-socket.on('sendMessage', async ({ roomID, message }) => {
-    try {
-        // Borrar la clave de mensajes si existe previamente
-        await redisClient.del(`messages:${roomID}`);
+    // ✅ Unirse a una sala (validando con bcrypt)
+    socket.on('joinRoom', async ({ roomID, roomPassword }) => {
+        try {
+            const storedHash = await redisClient.get(`room:${roomID}`);
+            if (!storedHash) {
+                socket.emit('error', 'La sala no existe');
+                return;
+            }
 
-        // Luego, empujar el nuevo mensaje a la lista de mensajes de la sala
-        await redisClient.sendCommand(['LPUSH', `messages:${roomID}`, message]);
+            const valid = await bcrypt.compare(roomPassword, storedHash);
+            if (!valid) {
+                socket.emit('error', 'Contraseña incorrecta ❌');
+                return;
+            }
 
-        // Establecer un tiempo de expiración para los mensajes (opcional)
-        await redisClient.expire(`messages:${roomID}`, 60 * 60 * 24);
+            socket.join(roomID);
 
-        // Enviar el mensaje a todos los usuarios conectados a la sala
-        io.to(roomID).emit('message', message);
-        console.log(`Mensaje guardado en la sala ${roomID}: ${message}`);
-    } catch (error) {
-        console.error('Error al guardar el mensaje:', error);
-    }
-});
+            // 🔑 Recuperar y descifrar mensajes
+            const encryptedMessages = await redisClient.lRange(`messages:${roomID}`, 0, -1);
+            const messages = encryptedMessages.map(enc => {
+                try {
+                    const bytes = CryptoJS.AES.decrypt(enc, roomPassword);
+                    return bytes.toString(CryptoJS.enc.Utf8) || "[Mensaje ilegible]";
+                } catch {
+                    return "[Error al descifrar]";
+                }
+            });
 
+            socket.emit('previousMessages', messages);
+            console.log(`Usuario se unió a la sala: ${roomID}`);
+        } catch (error) {
+            console.error('Error al unirse a la sala:', error);
+            socket.emit('error', 'Error al procesar la solicitud');
+        }
+    });
 
-   
+    // ✅ Enviar mensaje (cifrado con AES)
+    socket.on('sendMessage', async ({ roomID, roomPassword, message }) => {
+        try {
+            const storedHash = await redisClient.get(`room:${roomID}`);
+            if (!storedHash) return;
 
-    // Salir de una sala (sin borrar mensajes)
+            const valid = await bcrypt.compare(roomPassword, storedHash);
+            if (!valid) {
+                socket.emit('error', 'No autorizado para enviar mensajes');
+                return;
+            }
+
+            // 🔒 Cifrar mensaje antes de guardar
+            const encrypted = CryptoJS.AES.encrypt(message, roomPassword).toString();
+
+            await redisClient.lPush(`messages:${roomID}`, encrypted);
+            await redisClient.expire(`messages:${roomID}`, 60 * 60 * 24); // expira en 24h
+
+            // Emitir mensaje plano a los clientes (ellos ya tienen la contraseña)
+            io.to(roomID).emit('message', message);
+            console.log(`Mensaje guardado (cifrado) en la sala ${roomID}`);
+        } catch (error) {
+            console.error('Error al enviar mensaje:', error);
+        }
+    });
+
+    // ✅ Solicitar mensajes previos
+    socket.on('requestPreviousMessages', async ({ roomID, roomPassword }) => {
+        const encryptedMessages = await redisClient.lRange(`messages:${roomID}`, 0, -1);
+        const messages = encryptedMessages.map(enc => {
+            try {
+                const bytes = CryptoJS.AES.decrypt(enc, roomPassword);
+                return bytes.toString(CryptoJS.enc.Utf8) || "[Mensaje ilegible]";
+            } catch {
+                return "[Error al descifrar]";
+            }
+        });
+        socket.emit('previousMessages', messages);
+    });
+
+    // Salir de una sala
     socket.on('leaveRoom', (roomID) => {
-        socket.leave(roomID); // El usuario sale de la sala
+        socket.leave(roomID);
         console.log(`Usuario salió de la sala: ${roomID}`);
     });
 
-    // Desconexión de usuarios
     socket.on('disconnect', () => {
         console.log('Usuario desconectado');
     });

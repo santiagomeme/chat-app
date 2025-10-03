@@ -1,96 +1,257 @@
- #messagePanel {
-          display: none;
-          border: 1px solid #ccc;
-          padding: 10px;
-          margin-top: 10px;
-      }
-
-      #chat {
-    display: none;
-}
-
-small {
-    display: block;
-    margin-top: 5px;
-    font-size: 12px;
-    color: gray;
-}
-
-#passwordFeedback {
-    font-weight: bold;
-}
-h1{
-  color: rgb(0, 0, 0);
-}
-h6{
-  color:rgb(255, 255, 255);
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
-/* Estilo general para centrar todo el contenido en la pantalla */
+/* === Estilo general === */
 body {
   margin: 0;
   padding: 0;
+  background-color: #000;
+  color: #fff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
-  flex-direction: column; /* Asegura que los elementos queden en una columna */
-  justify-content: center; /* Centra verticalmente */
-  align-items: center; /* Centra horizontalmente */
-  min-height: 100vh; /* Asegura que ocupe toda la altura de la pantalla */
-  text-align: center; /* Centra el texto dentro de los elementos */
-  font-family: Arial, sans-serif; /* Fuente predeterminada */
-  background-color: #f9f9f9; /* Fondo claro */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
 }
 
-/* Estilo para el h1 con borde aguamarina */
+/* === Logo === */
+.imgLogo,
+.logoR {
+  width: 150px;
+  height: auto;
+  max-width: 80%;
+  margin: 20px 0;
+}
+
+/* === Títulos === */
 h1 {
-  border: 5px solid aquamarine; /* Borde de color aguamarina */
-  padding: 10px; /* Espacio interno alrededor del texto */
-  border-radius: 10px; /* Bordes redondeados opcionales */
-  background-color: #e0ffff; /* Fondo más claro */
-  margin-bottom: 20px; /* Espaciado hacia abajo */
-}
-
-/* Ajustes de los botones */
-button {
-  margin: 10px; /* Espaciado entre botones */
-  padding: 10px 20px; /* Espaciado interno */
-  font-size: 16px; /* Tamaño del texto */
-  cursor: pointer;
-  border-radius: 5px; /* Bordes redondeados */
-  border: none;
-  background-color: aquamarine;
-  color: black;
-}
-
-button:hover {
-  background-color: #76eec6; /* Color más oscuro al pasar el ratón */
-}
-
-/* Ajustes para las etiquetas de entrada */
-input[type="text"],
-input[type="password"] {
-  margin: 10px 0; /* Espaciado vertical */
+  font-size: 2rem;
+  margin-bottom: 10px;
   padding: 10px;
-  font-size: 16px;
-  border: 1px solid #000000;
-  border-radius: 5px;
-  width: 80%; /* Ancho relativo */
-  max-width: 300px; /* Ancho máximo */
+  border-radius: 10px;
+ }
+
+.h1i {
+  font-size: 3rem;
+  font-family: 'Orbitron', sans-serif; /* Fuente futurista */
+  text-align: center;
+ box-shadow: 
+    0 0 4px rgb(159, 43, 226),
+    0 0 10px rgb(0, 238, 255),
+    0 0 20px rgb(43, 226, 226);
+
+  /* 🎨 Degradado futurista */
+  background: linear-gradient(90deg, #8e2de2, #4a00e0, #00f0ff);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+
+  /* ✨ Efecto neón más limpio */
+  text-shadow: 
+    0 0 4px rgba(138, 43, 226, 0.6),
+    0 0 10px rgba(0, 255, 255, 0.4),
+    0 0 20px rgba(138, 43, 226, 0.3);
+
+  margin: 20px 0;
+  animation: glow 3s infinite alternate;
 }
 
-.imgLogo{
-  height: 200px;
-  width: 200px;
-  margin-top: 50px;
+@keyframes glow {
+  from {
+    text-shadow: 
+      0 0 4px rgba(138, 43, 226, 0.6),
+      0 0 10px rgba(0, 255, 255, 0.4),
+      0 0 20px rgba(138, 43, 226, 0.3);
+  }
+  to {
+    text-shadow: 
+      0 0 6px rgba(0, 255, 255, 0.7),
+      0 0 14px rgba(138, 43, 226, 0.5),
+      0 0 28px rgba(0, 255, 255, 0.4);
+  }
 }
 
+
+h2 {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 1.5rem;
+  color: #00eeff;
+  text-shadow: #00eeff 0px 0px 10px;
+}
+
+h3 {
+  font-family: 'Orbitron', sans-serif; /* Fuente futurista */
+  margin: 15px 0 10px 0;
+  font-size: 1.2rem;
+  color: aquamarine;
+}
+
+h4 {
+  font-size: 1rem;
+  margin-bottom: 15px;
+  color: #ccc;
+}
+
+h6 {
+  color: #fff;
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
 
 .red-text {
   color: red;
+  font-weight: bold;
 }
 
-body {
-  background-color: black;
-  color: white; /* Cambia el color del texto a blanco para que sea visible */
+/* === Formularios === */
+form {
+  margin: 20px 0;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+  margin: 10px 0;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  width: 80%;
+  max-width: 300px;
+  background-color: #000000;
+
+   outline: none; /* quita el borde por defecto */
+  transition: border-color 0.3s, box-shadow 0.3s;
+  color: #00eeff;
+  text-shadow: #00eeff 0px 0px 2px;
+  border :1 px #00eeff 0px 0px 10px;
+
+}
+
+input:focus {
+  border-color: #8e2de2; /* morado brillante */
+  box-shadow: 0 0 6px #8e2de2; /* efecto glow */
+}
+label{
+  
+ 
+  color: #00eeff;
+  text-shadow: #00eeff 0px 0px 2px;
+
+}
+small {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  color: rgb(0, 255, 255);
+}
+
+#passwordFeedback {
+  font-weight: bold;
+  color: #ffcc00;
+}
+
+/* === Botones === */
+button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+  background: transparent;
+  box-shadow: 0 0 10px #00eeff;
+  transition: all 0.3s ease;
+  color: #00eeff;
+  text-shadow: #00eeff 0px 0px 10px;
+
+}
+
+/* Hover morado brillante */
+button:hover {
+  color: #d500f9; /* Morado neón */
+  box-shadow: 0 0 15px #d500f9, 0 0 30px #d500f9;
+  transform: scale(1.05); /* Pequeño zoom para impacto */
+}/* === Chat (reemplazar bloque anterior) === */
+#chat { display: none; }
+
+#messages {
+  border: 1px solid #00eeff;
+  padding: 10px;
+  width: 90%;
+  max-width: 500px;
+  height: 250px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+  background-color: #000000;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Espacio entre wrappers de mensaje */
+  box-sizing: border-box;
+}
+
+/* wrapper del mensaje: ocupa todo el ancho para permitir alineación correcta */
+.message {
+  width: 100%;
+  display: flex;
+  flex-direction: column; /* nombre arriba, burbuja abajo */
+  margin: 0; /* el gap entre mensajes lo controla #messages */
+}
+
+/* Nombre de usuario (arriba, pequeño) */
+.username {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+
+/* Burbuja de texto */
+.bubble {
+  display: inline-block;
+  max-width: 75%;        /* ancho máximo de la burbuja */
+  padding: 8px 12px;
+  border-radius: 14px;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.35;
+  box-shadow: 0 2px 6px rgba(89, 0, 255, 0.45);
+}
+
+/* Hora (debajo de la burbuja) */
+.time {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+/* === Mensajes Míos (alineados a la derecha) === */
+.message.mine {
+  align-items: flex-end; /* todo dentro del wrapper se alinea a la derecha */
+}
+.message.mine .bubble {
+  margin-left: auto;     /* empuja la burbuja hasta el borde derecho del wrapper */
+  background-color: #2196f3; /* azul */
+  color: #fff;
+  text-align: right;
+  border-radius: 14px 14px 4px 14px; /* pequeño detalle estético */
+}
+
+/* === Mensajes de Otros (alineados a la izquierda) === */
+.message.other {
+  align-items: flex-start;
+}
+.message.other .bubble {
+  margin-right: auto;    /* empuja la burbuja hacia la izquierda */
+  background-color: #9c27b0; /* morado suave */
+  color: #fff;
+  text-align: left;
+  border-radius: 14px 14px 14px 4px;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 600px) {
+  #messages { height: 200px; }
+  .bubble { max-width: 85%; font-size: 13px; }
 }

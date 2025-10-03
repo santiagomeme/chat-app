@@ -9,7 +9,9 @@
     "deploy:all": "firebase deploy --only hosting,firestore --project chat-app-e3480"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "firebase": "^11.0.2",
